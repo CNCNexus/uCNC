@@ -167,7 +167,7 @@ extern "C"
 
 // bkl
 #define DOUT33_BIT 13
-#define DOUT3_PORT D
+#define DOUT33_PORT D
 
 // rst
 #define DOUT34_BIT 6

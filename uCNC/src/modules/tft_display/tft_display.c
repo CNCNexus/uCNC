@@ -24,6 +24,7 @@
 #include "../system_menu.h"
 #include "../softspi.h"
 #include "lvgl/lvgl.h"
+#include "lvgl/src/drivers/display/st7796/lv_st7796.h"
 #include "ui/ui.h"
 
 #if (UCNC_MODULE_VERSION < 10990 || UCNC_MODULE_VERSION > 99999)
@@ -47,10 +48,18 @@
 #define TFT_DISPLAY_SPI_FREQ 20000000UL
 #endif
 
-HARDSPI(tft_spi, 20000000,0,mcu_spi2_port);
+#ifndef TFT_H_RES
+#define TFT_H_RES 480
+#endif
+#ifndef TFT_V_RES
+#define TFT_V_RES 320
+#endif
+
+HARDSPI(tft_spi, 20000000, 0, mcu_spi2_port);
+static lv_disp_t *disp;
 
 // buffer
-#define SCREENBUFFER_SIZE_PIXELS 480 * 320 / 10
+#define SCREENBUFFER_SIZE_PIXELS (TFT_H_RES * TFT_V_RES / 10)
 static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
 
 #ifdef ENABLE_MAIN_LOOP_MODULES
@@ -93,8 +102,51 @@ CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI_L
 #endif
 
 // based on https://docs.lvgl.io/master/integration/driver/display/lcd_stm32_guide.html#lcd-stm32-guide
+/* Platform-specific implementation of the LCD send command function. In general this should use polling transfer. */
+static void tft_send_cmd(lv_display_t *disp, const uint8_t *cmd, size_t cmd_size, const uint8_t *param, size_t param_size)
+{
+	LV_UNUSED(disp);
+	tft_spi.spiconfig.enable_dma = 0;
+	softspi_start(&tft_spi);
+	/* DCX low (command) */
+	io_clear_output(TFT_DISPLAY_SPI_DC);
+	/* CS low */
+	io_clear_output(TFT_DISPLAY_SPI_CS);
+	/* send command */
+	softspi_bulk_xmit(&tft_spi, cmd, NULL, (uint16_t)cmd_size);
 
+	/* DCX high (data) */
+	io_set_output(TFT_DISPLAY_SPI_DC);
+	/* for short data blocks we use polling transfer */
+	softspi_bulk_xmit(&tft_spi, param, NULL, (uint16_t)param_size);
+	/* CS high */
+	io_set_output(TFT_DISPLAY_SPI_CS);
+	softspi_stop(&tft_spi);
+}
 
+/* Platform-specific implementation of the LCD send color function. For better performance this should use DMA transfer.
+ * In case of a DMA transfer a callback must be installed to notify LVGL about the end of the transfer.
+ */
+static void tft_send_color(lv_display_t *disp, const uint8_t *cmd, size_t cmd_size, uint8_t *param, size_t param_size)
+{
+	LV_UNUSED(disp);
+	tft_spi.spiconfig.enable_dma = 1;
+	softspi_start(&tft_spi);
+	/* DCX low (command) */
+	io_clear_output(TFT_DISPLAY_SPI_DC);
+	/* CS low */
+	io_clear_output(TFT_DISPLAY_SPI_CS);
+	/* send command */
+	softspi_bulk_xmit(&tft_spi, cmd, NULL, (uint16_t)cmd_size);
+
+	/* DCX high (data) */
+	io_set_output(TFT_DISPLAY_SPI_DC);
+	/* for short data blocks we use polling transfer */
+	softspi_bulk_xmit(&tft_spi, param, NULL, (uint16_t)param_size);
+	/* CS high */
+	io_set_output(TFT_DISPLAY_SPI_CS);
+	softspi_stop(&tft_spi);
+}
 
 DECL_MODULE(tft_display)
 {
@@ -108,13 +160,16 @@ DECL_MODULE(tft_display)
 	cnc_delay_ms(100);
 	io_set_output(TFT_DISPLAY_RST);
 #endif
+	io_set_output(TFT_DISPLAY_SPI_DC);
+	io_set_output(TFT_DISPLAY_SPI_CS);
 	cnc_delay_ms(100);
 
 	lv_init();
-	static lv_disp_t *disp;
-	disp = lv_display_create(480, 320);
+
+	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, 0, tft_send_cmd, tft_send_color);
+	//lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
+
 	lv_display_set_buffers(disp, buf, NULL, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
-	lv_display_set_flush_cb(disp, tft_flush);
 
 	// static lv_indev_t* indev;
 	// indev = lv_indev_create();
