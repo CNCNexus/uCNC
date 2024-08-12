@@ -16,21 +16,122 @@
 	See the	GNU General Public License for more details.
 */
 
-// #include "../../cnc.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <string.h>
+#include <math.h>
+#include "../../cnc.h"
+#include "../system_menu.h"
+#include "../softspi.h"
+#include "lvgl/lvgl.h"
+#include "ui/ui.h"
 
-// #include <stdint.h>
-// #include <stdbool.h>
-// #include <string.h>
-// #include <math.h>
-// #include "../system_menu.h"
+#if (UCNC_MODULE_VERSION < 10990 || UCNC_MODULE_VERSION > 99999)
+#error "This module is not compatible with the current version of µCNC"
+#endif
 
-// #if (UCNC_MODULE_VERSION < 10990 || UCNC_MODULE_VERSION > 99999)
-// #error "This module is not compatible with the current version of µCNC"
-// #endif
+#ifndef TFT_DISPLAY_SPI_CS
+#define TFT_DISPLAY_SPI_CS DOUT6
+#endif
+#ifndef TFT_DISPLAY_SPI_DC
+#define TFT_DISPLAY_SPI_DC DOUT32
+#endif
+#ifndef TFT_DISPLAY_BKL
+#define TFT_DISPLAY_BKL DOUT33
+#endif
+#ifndef TFT_DISPLAY_RST
+#define TFT_DISPLAY_RST DOUT34
+#endif
+
+#ifndef TFT_DISPLAY_SPI_FREQ
+#define TFT_DISPLAY_SPI_FREQ 20000000UL
+#endif
+
+HARDSPI(tft_spi, 20000000,0,mcu_spi2_port);
+
+// buffer
+#define SCREENBUFFER_SIZE_PIXELS 480 * 320 / 10
+static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
+
+#ifdef ENABLE_MAIN_LOOP_MODULES
+bool tft_display_update(void *args)
+{
+	static bool running = false;
+
+	if (!running)
+	{
+		running = true;
+		// uint8_t action = SYSTEM_MENU_ACTION_NONE;
+		// switch (graphic_display_rotary_encoder_control())
+		// {
+		// case GRAPHIC_DISPLAY_SELECT:
+		// 	action = SYSTEM_MENU_ACTION_SELECT;
+		// 	// prevent double click
+		// 	graphic_display_rotary_encoder_pressed = 0;
+		// 	break;
+		// case GRAPHIC_DISPLAY_NEXT:
+		// 	action = SYSTEM_MENU_ACTION_NEXT;
+		// 	break;
+		// case GRAPHIC_DISPLAY_PREV:
+		// 	action = SYSTEM_MENU_ACTION_PREV;
+		// 	break;
+		// }
+
+		// system_menu_action(action);
+
+		// cnc_dotasks();
+		// // render menu
+		// system_menu_render();
+		// cnc_dotasks();
+		lv_timer_handler();
+		running = false;
+	}
+
+	return EVENT_CONTINUE;
+}
+CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI_LOCK);
+#endif
+
+// based on https://docs.lvgl.io/master/integration/driver/display/lcd_stm32_guide.html#lcd-stm32-guide
 
 
 
-// DECL_MODULE(tft_display)
-// {
+DECL_MODULE(tft_display)
+{
+	io_clear_output(TFT_DISPLAY_BKL);
+	cnc_delay_ms(50);
+	io_set_output(TFT_DISPLAY_BKL);
+#if ASSERT_PIN(TFT_DISPLAY_RST)
+	io_set_output(TFT_DISPLAY_RST);
+	cnc_delay_ms(100);
+	io_clear_output(TFT_DISPLAY_RST);
+	cnc_delay_ms(100);
+	io_set_output(TFT_DISPLAY_RST);
+#endif
+	cnc_delay_ms(100);
 
-// }
+	lv_init();
+	static lv_disp_t *disp;
+	disp = lv_display_create(480, 320);
+	lv_display_set_buffers(disp, buf, NULL, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
+	lv_display_set_flush_cb(disp, tft_flush);
+
+	// static lv_indev_t* indev;
+	// indev = lv_indev_create();
+	// lv_indev_set_type( indev, LV_INDEV_TYPE_POINTER );
+	// lv_indev_set_read_cb( indev, my_touchpad_read );
+
+	lv_tick_set_cb(mcu_millis);
+
+	ui_init();
+	// STARTS SYSTEM MENU MODULE
+	system_menu_init();
+#ifdef ENABLE_MAIN_LOOP_MODULES
+	// ADD_EVENT_LISTENER(cnc_reset, tft_display_start);
+	// ADD_EVENT_LISTENER(cnc_alarm, tft_display_update);
+	ADD_EVENT_LISTENER(cnc_dotasks, tft_display_update);
+	// ADD_EVENT_LISTENER(cnc_io_dotasks, graphic_display_rotary_encoder_control_sample);
+#else
+#warning "Main loop extensions are not enabled. Graphic display card will not work."
+#endif
+}
