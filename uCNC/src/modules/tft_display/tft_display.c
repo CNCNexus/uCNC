@@ -64,44 +64,11 @@ static lv_disp_t *disp;
 #define SCREENBUFFER_SIZE_PIXELS (TFT_H_RES * TFT_V_RES / 10)
 static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
 
-#ifdef ENABLE_MAIN_LOOP_MODULES
-bool tft_display_update(void *args)
-{
-	static bool running = false;
+/**
+ * LVGL callback functions
+ * 
+ */
 
-	if (!running)
-	{
-		running = true;
-		// uint8_t action = SYSTEM_MENU_ACTION_NONE;
-		// switch (graphic_display_rotary_encoder_control())
-		// {
-		// case GRAPHIC_DISPLAY_SELECT:
-		// 	action = SYSTEM_MENU_ACTION_SELECT;
-		// 	// prevent double click
-		// 	graphic_display_rotary_encoder_pressed = 0;
-		// 	break;
-		// case GRAPHIC_DISPLAY_NEXT:
-		// 	action = SYSTEM_MENU_ACTION_NEXT;
-		// 	break;
-		// case GRAPHIC_DISPLAY_PREV:
-		// 	action = SYSTEM_MENU_ACTION_PREV;
-		// 	break;
-		// }
-
-		// system_menu_action(action);
-
-		// cnc_dotasks();
-		// // render menu
-		// system_menu_render();
-		// cnc_dotasks();
-		lv_timer_handler();
-		running = false;
-	}
-
-	return EVENT_CONTINUE;
-}
-CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI_LOCK);
-#endif
 
 // based on https://docs.lvgl.io/master/integration/driver/display/lcd_stm32_guide.html#lcd-stm32-guide
 /* Platform-specific implementation of the LCD send command function. In general this should use polling transfer. */
@@ -160,11 +127,19 @@ static void tft_send_color(lv_display_t *display, const uint8_t *cmd, size_t cmd
 // 	lv_display_flush_ready(display);
 // }
 
-void tft_log_cb(lv_log_level_t level, const char * buf){
+void tft_log_cb(lv_log_level_t level, const char *buf)
+{
 	serial_print_str(buf);
 }
 
-DECL_MODULE(tft_display)
+/**
+ * 
+ * Module event listener callbacks
+ * 
+ */
+
+#ifdef ENABLE_MAIN_LOOP_MODULES
+bool tft_display_start(void *args)
 {
 	io_clear_output(TFT_DISPLAY_BKL);
 	cnc_delay_ms(50);
@@ -181,13 +156,15 @@ DECL_MODULE(tft_display)
 	cnc_delay_ms(100);
 	// tft_init();
 
-	lv_init();
-
-	disp = lv_display_create(TFT_H_RES, TFT_V_RES);
+	if (disp)
+	{
+		lv_display_delete(disp);
+	}
+	// disp = lv_display_create(TFT_H_RES, TFT_V_RES);
 	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, 0, tft_send_cmd, tft_send_color);
 	// lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
 	// lv_display_set_flush_cb(disp, tft_flush_cb);
-	lv_log_register_print_cb(tft_log_cb);
+	// lv_log_register_print_cb(tft_log_cb);
 
 	lv_display_set_buffers(disp, buf, NULL, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
@@ -195,15 +172,59 @@ DECL_MODULE(tft_display)
 	// indev = lv_indev_create();
 	// lv_indev_set_type( indev, LV_INDEV_TYPE_POINTER );
 	// lv_indev_set_read_cb( indev, my_touchpad_read );
-	
-
-	lv_tick_set_cb(mcu_millis);
 
 	ui_init();
+	return EVENT_CONTINUE;
+}
+
+CREATE_EVENT_LISTENER_WITHLOCK(cnc_reset, tft_display_start, LISTENER_HWSPI2_LOCK);
+
+bool tft_display_update(void *args)
+{
+	static bool running = false;
+
+	if (!running)
+	{
+		running = true;
+		// uint8_t action = SYSTEM_MENU_ACTION_NONE;
+		// switch (graphic_display_rotary_encoder_control())
+		// {
+		// case GRAPHIC_DISPLAY_SELECT:
+		// 	action = SYSTEM_MENU_ACTION_SELECT;
+		// 	// prevent double click
+		// 	graphic_display_rotary_encoder_pressed = 0;
+		// 	break;
+		// case GRAPHIC_DISPLAY_NEXT:
+		// 	action = SYSTEM_MENU_ACTION_NEXT;
+		// 	break;
+		// case GRAPHIC_DISPLAY_PREV:
+		// 	action = SYSTEM_MENU_ACTION_PREV;
+		// 	break;
+		// }
+
+		// system_menu_action(action);
+
+		// cnc_dotasks();
+		// // render menu
+		// system_menu_render();
+		// cnc_dotasks();
+		lv_timer_handler();
+		running = false;
+	}
+
+	return EVENT_CONTINUE;
+}
+CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI2_LOCK);
+#endif
+
+DECL_MODULE(tft_display)
+{
 	// STARTS SYSTEM MENU MODULE
 	system_menu_init();
+	lv_init();
+	lv_tick_set_cb(mcu_millis);
 #ifdef ENABLE_MAIN_LOOP_MODULES
-	// ADD_EVENT_LISTENER(cnc_reset, tft_display_start);
+	ADD_EVENT_LISTENER(cnc_reset, tft_display_start);
 	// ADD_EVENT_LISTENER(cnc_alarm, tft_display_update);
 	ADD_EVENT_LISTENER(cnc_dotasks, tft_display_update);
 	// ADD_EVENT_LISTENER(cnc_io_dotasks, graphic_display_rotary_encoder_control_sample);
