@@ -31,7 +31,6 @@ extern "C" {
 void ui_startup_screen_init(void);
 extern lv_obj_t * ui_startup;
 extern lv_obj_t * ui_startup_label_versioninfo;
-extern lv_obj_t * ui_startup_image_logo;
 // SCREEN: ui_idle
 void ui_idle_screen_init(void);
 extern lv_obj_t * ui_idle;
