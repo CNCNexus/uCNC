@@ -61,8 +61,9 @@ HARDSPI(tft_spi, 20000000, 0, mcu_spi2_port);
 static lv_disp_t *disp;
 
 // buffer
-#define SCREENBUFFER_SIZE_PIXELS (TFT_H_RES * TFT_V_RES / 10)
+#define SCREENBUFFER_SIZE_PIXELS (TFT_H_RES * TFT_V_RES / 20)
 static lv_color_t buf[SCREENBUFFER_SIZE_PIXELS];
+static lv_color_t buf2[SCREENBUFFER_SIZE_PIXELS];
 
 /**
  * LVGL callback functions
@@ -91,6 +92,7 @@ static void tft_send_cmd(lv_display_t *display, const uint8_t *cmd, size_t cmd_s
 	/* CS high */
 	io_set_output(TFT_DISPLAY_SPI_CS);
 	softspi_stop(&tft_spi);
+	lv_display_flush_ready(display);
 }
 
 /* Platform-specific implementation of the LCD send color function. For better performance this should use DMA transfer.
@@ -117,6 +119,7 @@ static void tft_send_color(lv_display_t *display, const uint8_t *cmd, size_t cmd
 	/* CS high */
 	io_set_output(TFT_DISPLAY_SPI_CS);
 	softspi_stop(&tft_spi);
+	lv_display_flush_ready(display);
 }
 
 // void tft_flush_cb(lv_display_t *display, const lv_area_t *area, uint8_t *px_map)
@@ -162,11 +165,11 @@ bool tft_display_start(void *args)
 	}
 	// disp = lv_display_create(TFT_H_RES, TFT_V_RES);
 	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, 0, tft_send_cmd, tft_send_color);
-	// lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
+	lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
 	// lv_display_set_flush_cb(disp, tft_flush_cb);
 	// lv_log_register_print_cb(tft_log_cb);
 
-	lv_display_set_buffers(disp, buf, NULL, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
+	lv_display_set_buffers(disp, buf, buf2, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
 	// static lv_indev_t* indev;
 	// indev = lv_indev_create();
@@ -223,6 +226,7 @@ DECL_MODULE(tft_display)
 	system_menu_init();
 	lv_init();
 	lv_tick_set_cb(mcu_millis);
+	lv_delay_set_cb(cnc_delay_ms);
 #ifdef ENABLE_MAIN_LOOP_MODULES
 	ADD_EVENT_LISTENER(cnc_reset, tft_display_start);
 	// ADD_EVENT_LISTENER(cnc_alarm, tft_display_update);
