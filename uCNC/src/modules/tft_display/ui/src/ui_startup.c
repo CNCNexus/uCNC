@@ -26,4 +26,12 @@ void ui_startup_screen_init(void)
     lv_obj_set_style_text_color(ui_startup_label_versioninfo, lv_color_hex(0x000000), LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_opa(ui_startup_label_versioninfo, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_startup_image_image1 = lv_image_create(ui_startup);
+    lv_image_set_src(ui_startup_image_image1, &ui_img_ucnc_logo_png);
+    lv_obj_set_width(ui_startup_image_image1, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_startup_image_image1, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_startup_image_image1, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_startup_image_image1, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_startup_image_image1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
 }

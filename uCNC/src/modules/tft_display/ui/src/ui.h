@@ -31,6 +31,7 @@ extern "C" {
 void ui_startup_screen_init(void);
 extern lv_obj_t * ui_startup;
 extern lv_obj_t * ui_startup_label_versioninfo;
+extern lv_obj_t * ui_startup_image_image1;
 // SCREEN: ui_idle
 void ui_idle_screen_init(void);
 extern lv_obj_t * ui_idle;
@@ -165,6 +166,7 @@ extern lv_obj_t * ui_jog_label_label7;
 extern lv_obj_t * ui_startevents____initial_actions0;
 
 
+LV_IMG_DECLARE(ui_img_ucnc_logo_png);    // assets/uCNC_logo.png
 
 
 

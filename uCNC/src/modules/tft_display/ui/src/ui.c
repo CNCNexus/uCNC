@@ -13,6 +13,7 @@
 void ui_startup_screen_init(void);
 lv_obj_t * ui_startup;
 lv_obj_t * ui_startup_label_versioninfo;
+lv_obj_t * ui_startup_image_image1;
 
 
 // SCREEN: ui_idle

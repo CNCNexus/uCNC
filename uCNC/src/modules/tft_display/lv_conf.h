@@ -26,7 +26,7 @@
 /*Color depth: 8 (A8), 16 (RGB565), 24 (RGB888), 32 (XRGB8888)*/
 #define LV_COLOR_DEPTH 16  //16
 
-#define LV_COLOR_16_SWAP 0  //(LV_COLOR_16_SWAP is abandoned by LVGL9, but lv_draw_sw_rgb565_swap() is added to display flush function)
+#define LV_COLOR_16_SWAP 1  //(LV_COLOR_16_SWAP is abandoned by LVGL9, but lv_draw_sw_rgb565_swap() is added to display flush function)
 
 /*=========================
    STDLIB WRAPPER SETTINGS

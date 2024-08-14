@@ -49,10 +49,10 @@
 #endif
 
 #ifndef TFT_H_RES
-#define TFT_H_RES 480
+#define TFT_H_RES 320
 #endif
 #ifndef TFT_V_RES
-#define TFT_V_RES 320
+#define TFT_V_RES 480
 #endif
 
 HARDSPI(tft_spi, 20000000, 0, mcu_spi2_port);
@@ -110,11 +110,13 @@ static void tft_send_color(lv_display_t *display, const uint8_t *cmd, size_t cmd
 	/* send command */
 	softspi_bulk_xmit(&tft_spi, cmd, NULL, (uint16_t)cmd_size);
 	softspi_stop(&tft_spi);
-	tft_spi.spiconfig.enable_dma = 0;
+	tft_spi.spiconfig.enable_dma = 1;
 	/* DCX high (data) */
 	io_set_output(TFT_DISPLAY_SPI_DC);
 	softspi_start(&tft_spi);
 	/* for short data blocks we use polling transfer */
+	// fix color swap
+	lv_draw_sw_rgb565_swap(param, param_size / 2);
 	softspi_bulk_xmit(&tft_spi, param, NULL, (uint16_t)param_size);
 	/* CS high */
 	io_set_output(TFT_DISPLAY_SPI_CS);
@@ -165,7 +167,7 @@ bool tft_display_start(void *args)
 	}
 	// disp = lv_display_create(TFT_H_RES, TFT_V_RES);
 	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, 0, tft_send_cmd, tft_send_color);
-	lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_270);
+	lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
 	// lv_display_set_flush_cb(disp, tft_flush_cb);
 	// lv_log_register_print_cb(tft_log_cb);
 
