@@ -193,5 +193,8 @@ void ui_jog_screen_init(void)
     lv_label_set_text(ui_jog_label_label7, "-");
 
     lv_obj_add_event_cb(ui_jog_button_btnclose1, ui_event_jog_button_btnclose1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_jog_button_btnjogplus, ui_event_jog_button_btnjogplus, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_jog_button_btnjogcancel, ui_event_jog_button_btnjogcancel, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_jog_button_btnjogminus, ui_event_jog_button_btnjogminus, LV_EVENT_ALL, NULL);
 
 }

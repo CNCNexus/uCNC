@@ -20,13 +20,16 @@ lv_obj_t * ui_startup_image_image1;
 void ui_idle_screen_init(void);
 lv_obj_t * ui_idle;
 lv_obj_t * ui_idle_container_header2;
+void ui_event_idle_button_btnhome(lv_event_t * e);
 lv_obj_t * ui_idle_button_btnhome;
 lv_obj_t * ui_idle_label_btnhomelabel;
 lv_obj_t * ui_idle_container_statusinfo;
 lv_obj_t * ui_idle_label_statuslabel;
 lv_obj_t * ui_idle_label_statusvalue;
+void ui_event_idle_button_btnholdres(lv_event_t * e);
 lv_obj_t * ui_idle_button_btnholdres;
 lv_obj_t * ui_idle_label_btnholdreslabel;
+void ui_event_idle_container_body2(lv_event_t * e);
 lv_obj_t * ui_idle_container_body2;
 lv_obj_t * ui_idle_container_container1;
 lv_obj_t * ui_idle_container_modalmodesinfo;
@@ -147,10 +150,13 @@ lv_obj_t * ui_jog_container_container5;
 lv_obj_t * ui_jog_label_label6;
 lv_obj_t * ui_jog_roller_jogaxis;
 lv_obj_t * ui_jog_container_container6;
+void ui_event_jog_button_btnjogplus(lv_event_t * e);
 lv_obj_t * ui_jog_button_btnjogplus;
 lv_obj_t * ui_jog_label_label2;
+void ui_event_jog_button_btnjogcancel(lv_event_t * e);
 lv_obj_t * ui_jog_button_btnjogcancel;
 lv_obj_t * ui_jog_label_label3;
+void ui_event_jog_button_btnjogminus(lv_event_t * e);
 lv_obj_t * ui_jog_button_btnjogminus;
 lv_obj_t * ui_jog_label_label7;
 lv_obj_t * ui_startevents____initial_actions0;
@@ -163,6 +169,30 @@ lv_obj_t * ui_startevents____initial_actions0;
 ///////////////////// ANIMATIONS ////////////////////
 
 ///////////////////// FUNCTIONS ////////////////////
+void ui_event_idle_button_btnhome(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        touch_btn_home_cb(e);
+    }
+}
+void ui_event_idle_button_btnholdres(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        touch_btn_hold_cb(e);
+    }
+}
+void ui_event_idle_container_body2(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        btn_idle_cb(e);
+    }
+}
 void ui_event_idle_button_btnprev2(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -233,6 +263,30 @@ void ui_event_jog_button_btnclose1(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         touch_btn_close_cb(e);
+    }
+}
+void ui_event_jog_button_btnjogplus(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        touch_btn_jogplus_cb(e);
+    }
+}
+void ui_event_jog_button_btnjogcancel(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        touch_btn_jogcancel_cb(e);
+    }
+}
+void ui_event_jog_button_btnjogminus(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        touch_btn_jogminus_cb(e);
     }
 }
 

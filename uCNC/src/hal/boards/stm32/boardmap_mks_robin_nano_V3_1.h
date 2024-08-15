@@ -177,6 +177,10 @@ extern "C"
 #define DOUT35_BIT 14
 #define DOUT35_PORT E
 
+//touch irq
+#define DIN35_BIT 15
+#define DIN35_PORT E
+
 #define ONESHOT_TIMER 8
 
 #ifdef __cplusplus

@@ -93,6 +93,10 @@ void ui_idle_screen_init(void)
     lv_obj_set_flex_flow(ui_idle_container_body2, LV_FLEX_FLOW_ROW_WRAP);
     lv_obj_set_flex_align(ui_idle_container_body2, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
     lv_obj_remove_flag(ui_idle_container_body2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_pad_left(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_row(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_column(ui_idle_container_body2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -299,6 +303,7 @@ void ui_idle_screen_init(void)
     lv_obj_set_flex_flow(ui_idle_container_footer2, LV_FLEX_FLOW_ROW);
     lv_obj_set_flex_align(ui_idle_container_footer2, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER,
                           LV_FLEX_ALIGN_START);
+    lv_obj_add_flag(ui_idle_container_footer2, LV_OBJ_FLAG_HIDDEN);     /// Flags
     lv_obj_remove_flag(ui_idle_container_footer2, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_pad_left(ui_idle_container_footer2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_idle_container_footer2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -346,6 +351,9 @@ void ui_idle_screen_init(void)
     lv_obj_set_align(ui_idle_label_btnenterlabel2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_idle_label_btnenterlabel2, "Enter/Set");
 
+    lv_obj_add_event_cb(ui_idle_button_btnhome, ui_event_idle_button_btnhome, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_idle_button_btnholdres, ui_event_idle_button_btnholdres, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_idle_container_body2, ui_event_idle_container_body2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnprev2, ui_event_idle_button_btnprev2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnnext2, ui_event_idle_button_btnnext2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnenter2, ui_event_idle_button_btnenter2, LV_EVENT_ALL, NULL);

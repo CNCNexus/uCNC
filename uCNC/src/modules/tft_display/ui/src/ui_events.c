@@ -5,6 +5,21 @@
 
 #include "ui.h"
 
+void touch_btn_home_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
+void touch_btn_hold_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
+void btn_idle_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
 void touch_btn_prev_cb(lv_event_t * e)
 {
 	// Your code here
@@ -21,6 +36,21 @@ void touch_btn_enter_cb(lv_event_t * e)
 }
 
 void touch_btn_close_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
+void touch_btn_jogplus_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
+void touch_btn_jogcancel_cb(lv_event_t * e)
+{
+	// Your code here
+}
+
+void touch_btn_jogminus_cb(lv_event_t * e)
 {
 	// Your code here
 }

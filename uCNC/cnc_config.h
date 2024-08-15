@@ -576,9 +576,9 @@ extern "C"
 	 * For pin diagnostics enables command $P
 	 * */
 
-	// #define ENABLE_EXTRA_SYSTEM_CMDS
+	#define ENABLE_EXTRA_SYSTEM_CMDS
 	// uncomment o translate pins names when printing pins states with $P command
-	// #define ENABLE_PIN_TRANSLATIONS
+	#define ENABLE_PIN_TRANSLATIONS
 
 	/**
 	 * Compilation specific options
