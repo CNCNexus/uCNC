@@ -56,6 +56,7 @@
 #endif
 
 HARDSPI(tft_spi, 20000000, 0, mcu_spi2_port);
+HARDSPI(touch_spi, 10000000, 0, mcu_spi2_port);
 // extern void tft_init(void);
 // extern void tft_write(uint16_t x, uint16_t y, uint16_t *data, uint16_t w, uint16_t h);
 static lv_disp_t *disp;
@@ -204,8 +205,8 @@ bool tft_display_start(void *args)
 
 	lv_display_set_buffers(disp, buf, buf2, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
-	extern void touch_screen_init(uint16_t width, uint16_t height);
-	touch_screen_init(420, 320);
+	extern void touch_screen_init(softspi_port_t* spiport, uint16_t width, uint16_t height, uint8_t cs_pin, uint8_t penirq_pin);
+	touch_screen_init(&touch_spi, 320, 420, DOUT35, DIN35);
 	indev = lv_indev_create();
 	lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
 	lv_indev_set_read_cb(indev, tft_touch_read);
