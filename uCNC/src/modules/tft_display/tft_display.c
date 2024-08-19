@@ -96,6 +96,15 @@ static void tft_send_cmd(lv_display_t *display, const uint8_t *cmd, size_t cmd_s
 	lv_display_flush_ready(display);
 }
 
+static FORCEINLINE void swap_colors(uint16_t *buff, size_t pixel_count)
+{
+	while (pixel_count--)
+	{
+		uint16_t pixel = *buff;
+		*buff++ = ((pixel >> 7) | (pixel << (16 - 7)) & 0xFFFF);
+	}
+}
+
 /* Platform-specific implementation of the LCD send color function. For better performance this should use DMA transfer.
  * In case of a DMA transfer a callback must be installed to notify LVGL about the end of the transfer.
  */
@@ -115,9 +124,11 @@ static void tft_send_color(lv_display_t *display, const uint8_t *cmd, size_t cmd
 	/* DCX high (data) */
 	io_set_output(TFT_DISPLAY_SPI_DC);
 	softspi_start(&tft_spi);
-	/* for short data blocks we use polling transfer */
-	// fix color swap
-	lv_draw_sw_rgb565_swap(param, param_size / 2);
+/* for short data blocks we use polling transfer */
+// fix color swap
+#if LV_COLOR_16_SWAP
+	swap_colors(param, param_size / 2);
+#endif
 	softspi_bulk_xmit(&tft_spi, param, NULL, (uint16_t)param_size);
 	/* CS high */
 	io_set_output(TFT_DISPLAY_SPI_CS);
@@ -138,36 +149,86 @@ void tft_log(lv_log_level_t level, const char *buf)
 	serial_print_str(buf);
 }
 
-extern void touch_screen_get_position(uint16_t *x, uint16_t *y, uint8_t max_samples);
-extern bool touch_screen_is_touching();
 void tft_touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 {
-	int16_t x = -1, y = -1;
-	touch_screen_get_position(&x, &y, 127);
-	data->point.x = x;
-	data->point.y = y;
-	data->state = touch_screen_is_touching() ? LV_INDEV_STATE_PRESSED: LV_INDEV_STATE_RELEASED;
+	data->state = LV_INDEV_STATE_RELEASED;
+	data->point.x = -1;
+	data->point.y = -1;
+	if (touch_screen_is_touching())
+	{
+		touch_screen_get_position(&data->point.x, &data->point.y, 127);
+		data->state = LV_INDEV_STATE_PRESSED;
+	}
 }
 
 /**
- * 
+ *
  * Sytem menu implementations
- * 
+ *
  */
 
-	// void system_menu_render_header(const char *__s);
-	// bool system_menu_render_menu_item_filter(uint8_t item_index);
-	// void system_menu_render_menu_item(uint8_t render_flags, const system_menu_item_t *item);
-	// void system_menu_render_nav_back(bool is_hover);
-	// void system_menu_render_footer(void);
-	void system_menu_render_startup(void){
-		lv_disp_load_scr(ui_startup);
-	}
-	void system_menu_render_idle(void){
-		lv_disp_load_scr(ui_idle);
-	}
-	// void system_menu_render_alarm(void);
-	// void system_menu_render_modal_popup(const char *__s);
+void system_menu_render_header(const char *__s)
+{
+	// udpate header lables
+	lv_label_set_text(ui_navigate_label_headerlabel, __s);
+	lv_label_set_text(ui_edit_label_headerlabel, __s);
+}
+// bool system_menu_render_menu_item_filter(uint8_t item_index);
+// void system_menu_render_menu_item(uint8_t render_flags, const system_menu_item_t *item);
+// void system_menu_render_nav_back(bool is_hover);
+// void system_menu_render_footer(void);
+void system_menu_render_startup(void)
+{
+	lv_label_set_text(ui_startup_label_versioninfo, "uCNC v" CNC_VERSION);
+	lv_disp_load_scr(ui_startup);
+}
+
+void system_menu_render_idle(void)
+{
+	//  starts from the bottom up
+	float axis[MAX(AXIS_COUNT, 3)];
+	int32_t steppos[STEPPER_COUNT];
+	itp_get_rt_position(steppos);
+	kinematics_apply_forward(steppos, axis);
+	kinematics_apply_reverse_transform(axis);
+	char buffer[32];
+	
+#if (AXIS_COUNT >= 6)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[5]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoc, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+#if (AXIS_COUNT >= 5)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[4]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfob, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+#if (AXIS_COUNT >= 4)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[3]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoa, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+#if (AXIS_COUNT >= 3)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[2]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoz, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+#if (AXIS_COUNT >= 2)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[1]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoy, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+#if (AXIS_COUNT >= 1)
+	memset(buffer, 0, sizeof(buffer));
+	system_menu_flt_to_str(buffer, axis[0]);
+	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfox, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
+#endif
+
+	// lv_obj_invalidate(ui_idle);
+	lv_disp_load_scr(ui_idle);
+}
+// void system_menu_render_alarm(void);
+// void system_menu_render_modal_popup(const char *__s);
 
 /**
  *
@@ -198,15 +259,14 @@ bool tft_display_start(void *args)
 		lv_display_delete(disp);
 	}
 	// disp = lv_display_create(TFT_H_RES, TFT_V_RES);
-	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, 0, tft_send_cmd, tft_send_color);
+	disp = lv_st7796_create(TFT_H_RES, TFT_V_RES, LV_LCD_FLAG_BGR, tft_send_cmd, tft_send_color);
 	lv_display_set_rotation(disp, LV_DISPLAY_ROTATION_90);
 	// lv_display_set_flush_cb(disp, tft_flush_cb);
 	// lv_log_register_print_cb(tft_log);
 
 	lv_display_set_buffers(disp, buf, buf2, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
-	extern void touch_screen_init(softspi_port_t* spiport, uint16_t width, uint16_t height, uint8_t cs_pin, uint8_t penirq_pin);
-	touch_screen_init(&touch_spi, 320, 420, DOUT35, DIN35);
+	touch_screen_init(&touch_spi, TFT_H_RES, TFT_V_RES, (uint8_t)LV_DISPLAY_ROTATION_90, DOUT35, DIN35);
 	indev = lv_indev_create();
 	lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
 	lv_indev_set_read_cb(indev, tft_touch_read);

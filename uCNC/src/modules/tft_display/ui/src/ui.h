@@ -16,7 +16,7 @@ extern "C" {
 #elif __has_include("lvgl/lvgl.h")
 #include "lvgl/lvgl.h"
 #else
-#include "../../lvgl/lvgl.h"
+#include "lvgl.h"
 #endif
 #else
 #include "lvgl.h"
@@ -26,6 +26,8 @@ extern "C" {
 #include "ui_comp.h"
 #include "ui_comp_hook.h"
 #include "ui_events.h"
+#include "ui_theme_manager.h"
+#include "ui_themes.h"
 
 // SCREEN: ui_startup
 void ui_startup_screen_init(void);
@@ -36,17 +38,28 @@ extern lv_obj_t * ui_startup_image_image1;
 void ui_idle_screen_init(void);
 extern lv_obj_t * ui_idle;
 extern lv_obj_t * ui_idle_container_header2;
-void ui_event_idle_button_btnhome(lv_event_t * e);
-extern lv_obj_t * ui_idle_button_btnhome;
-extern lv_obj_t * ui_idle_label_btnhomelabel;
+void ui_event_idle_button_btnholdres1(lv_event_t * e);
+extern lv_obj_t * ui_idle_button_btnholdres1;
+extern lv_obj_t * ui_idle_image_image8;
 extern lv_obj_t * ui_idle_container_statusinfo;
 extern lv_obj_t * ui_idle_label_statuslabel;
 extern lv_obj_t * ui_idle_label_statusvalue;
 void ui_event_idle_button_btnholdres(lv_event_t * e);
 extern lv_obj_t * ui_idle_button_btnholdres;
-extern lv_obj_t * ui_idle_label_btnholdreslabel;
+extern lv_obj_t * ui_idle_image_image7;
+extern lv_obj_t * ui_idle_image_image12;
 void ui_event_idle_container_body2(lv_event_t * e);
 extern lv_obj_t * ui_idle_container_body2;
+extern lv_obj_t * ui_idle_container_container7;
+void ui_event_idle_button_btnhome(lv_event_t * e);
+extern lv_obj_t * ui_idle_button_btnhome;
+extern lv_obj_t * ui_idle_image_image9;
+void ui_event_idle_button_btnjog(lv_event_t * e);
+extern lv_obj_t * ui_idle_button_btnjog;
+extern lv_obj_t * ui_idle_image_image10;
+void ui_event_idle_button_btnsettings(lv_event_t * e);
+extern lv_obj_t * ui_idle_button_btnsettings;
+extern lv_obj_t * ui_idle_image_image11;
 extern lv_obj_t * ui_idle_container_container1;
 extern lv_obj_t * ui_idle_container_modalmodesinfo;
 extern lv_obj_t * ui_idle_label_modalmodeslabel;
@@ -65,9 +78,11 @@ extern lv_obj_t * ui_idle_label_toolspeedvalue;
 extern lv_obj_t * ui_idle_container_switchinfo;
 extern lv_obj_t * ui_idle_label_switchlabel;
 extern lv_obj_t * ui_idle_label_switchvalue;
+extern lv_obj_t * ui_idle_container_container8;
 extern lv_obj_t * ui_idle_axisinfo_axisinfox;
 extern lv_obj_t * ui_idle_axisinfo_axisinfoy;
 extern lv_obj_t * ui_idle_axisinfo_axisinfoz;
+extern lv_obj_t * ui_idle_container_container9;
 extern lv_obj_t * ui_idle_axisinfo_axisinfoa;
 extern lv_obj_t * ui_idle_axisinfo_axisinfob;
 extern lv_obj_t * ui_idle_axisinfo_axisinfoc;
@@ -84,11 +99,11 @@ extern lv_obj_t * ui_idle_label_btnenterlabel2;
 // SCREEN: ui_navigate
 void ui_navigate_screen_init(void);
 extern lv_obj_t * ui_navigate;
-extern lv_obj_t * ui_navigate_panel_headernav;
+extern lv_obj_t * ui_navigate_panel_header;
 extern lv_obj_t * ui_navigate_label_headerlabel;
 void ui_event_navigate_button_btnclose(lv_event_t * e);
 extern lv_obj_t * ui_navigate_button_btnclose;
-extern lv_obj_t * ui_navigate_label_btncloselabel;
+extern lv_obj_t * ui_navigate_image_image16;
 extern lv_obj_t * ui_navigate_container_body;
 extern lv_obj_t * ui_navigate_container_menuitem0;
 extern lv_obj_t * ui_navigate_label_menuitemlabel;
@@ -121,33 +136,34 @@ extern lv_obj_t * ui_navigate_container_footer;
 extern lv_obj_t * ui_navigate_panel_footernav;
 void ui_event_navigate_button_btnprev(lv_event_t * e);
 extern lv_obj_t * ui_navigate_button_btnprev;
-extern lv_obj_t * ui_navigate_label_btnprevlabel;
+extern lv_obj_t * ui_navigate_image_image13;
 void ui_event_navigate_button_btnnext(lv_event_t * e);
 extern lv_obj_t * ui_navigate_button_btnnext;
-extern lv_obj_t * ui_navigate_label_btnnextlabel;
+extern lv_obj_t * ui_navigate_image_image14;
 void ui_event_navigate_button_btnenter(lv_event_t * e);
 extern lv_obj_t * ui_navigate_button_btnenter;
-extern lv_obj_t * ui_navigate_label_btnenterlabel;
+extern lv_obj_t * ui_navigate_image_image15;
 // SCREEN: ui_edit
 void ui_edit_screen_init(void);
 extern lv_obj_t * ui_edit;
-extern lv_obj_t * ui_edit_panel_headeredit;
-extern lv_obj_t * ui_edit_label_headerlabel2;
-void ui_event_edit_button_btnclose2(lv_event_t * e);
-extern lv_obj_t * ui_edit_button_btnclose2;
-extern lv_obj_t * ui_edit_label_btncloselabel2;
+extern lv_obj_t * ui_edit_panel_header;
+extern lv_obj_t * ui_edit_label_headerlabel;
+void ui_event_edit_button_btnclose(lv_event_t * e);
+extern lv_obj_t * ui_edit_button_btnclose;
+extern lv_obj_t * ui_edit_image_image2;
 extern lv_obj_t * ui_edit_container_bodyedit;
 extern lv_obj_t * ui_edit_textarea_vareditinput;
 extern lv_obj_t * ui_edit_container_footeredit;
+void ui_event_edit_keyboard_keyboardedit(lv_event_t * e);
 extern lv_obj_t * ui_edit_keyboard_keyboardedit;
 // SCREEN: ui_jog
 void ui_jog_screen_init(void);
 extern lv_obj_t * ui_jog;
-extern lv_obj_t * ui_jog_panel_headernav1;
-extern lv_obj_t * ui_jog_label_headerlabel1;
-void ui_event_jog_button_btnclose1(lv_event_t * e);
-extern lv_obj_t * ui_jog_button_btnclose1;
-extern lv_obj_t * ui_jog_label_btncloselabel1;
+extern lv_obj_t * ui_jog_panel_header;
+extern lv_obj_t * ui_jog_label_headerlabel;
+void ui_event_jog_button_btnclose(lv_event_t * e);
+extern lv_obj_t * ui_jog_button_btnclose;
+extern lv_obj_t * ui_jog_image_image6;
 extern lv_obj_t * ui_jog_container_body1;
 extern lv_obj_t * ui_jog_panel_panel1;
 extern lv_obj_t * ui_jog_container_container2;
@@ -162,17 +178,28 @@ extern lv_obj_t * ui_jog_roller_jogaxis;
 extern lv_obj_t * ui_jog_container_container6;
 void ui_event_jog_button_btnjogplus(lv_event_t * e);
 extern lv_obj_t * ui_jog_button_btnjogplus;
-extern lv_obj_t * ui_jog_label_label2;
+extern lv_obj_t * ui_jog_image_image3;
 void ui_event_jog_button_btnjogcancel(lv_event_t * e);
 extern lv_obj_t * ui_jog_button_btnjogcancel;
-extern lv_obj_t * ui_jog_label_label3;
+extern lv_obj_t * ui_jog_image_image4;
 void ui_event_jog_button_btnjogminus(lv_event_t * e);
 extern lv_obj_t * ui_jog_button_btnjogminus;
-extern lv_obj_t * ui_jog_label_label7;
+extern lv_obj_t * ui_jog_image_image5;
 extern lv_obj_t * ui_startevents____initial_actions0;
 
 
 LV_IMG_DECLARE(ui_img_ucnc_logo_png);    // assets/uCNC_logo.png
+LV_IMG_DECLARE(ui_img_loop2_png);    // assets/loop2.png
+LV_IMG_DECLARE(ui_img_pause2_png);    // assets/pause2.png
+LV_IMG_DECLARE(ui_img_play3_png);    // assets/play3.png
+LV_IMG_DECLARE(ui_img_home3_png);    // assets/home3.png
+LV_IMG_DECLARE(ui_img_enlarge_png);    // assets/enlarge.png
+LV_IMG_DECLARE(ui_img_cog_png);    // assets/cog.png
+LV_IMG_DECLARE(ui_img_cross_png);    // assets/cross.png
+LV_IMG_DECLARE(ui_img_221678416);    // assets/arrow-up.png
+LV_IMG_DECLARE(ui_img_1491226653);    // assets/arrow-down.png
+LV_IMG_DECLARE(ui_img_checkmark_png);    // assets/checkmark.png
+LV_IMG_DECLARE(ui_img_blocked_png);    // assets/blocked.png
 
 
 

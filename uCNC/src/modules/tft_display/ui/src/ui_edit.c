@@ -11,37 +11,52 @@ void ui_edit_screen_init(void)
     lv_obj_remove_flag(ui_edit, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_flex_flow(ui_edit, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(ui_edit, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    lv_obj_set_style_border_color(ui_edit, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_opa(ui_edit, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ui_edit, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_edit, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_edit_panel_headeredit = lv_obj_create(ui_edit);
-    lv_obj_set_width(ui_edit_panel_headeredit, lv_pct(100));
-    lv_obj_set_height(ui_edit_panel_headeredit, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_align(ui_edit_panel_headeredit, LV_ALIGN_CENTER);
-    lv_obj_remove_flag(ui_edit_panel_headeredit, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_pad_left(ui_edit_panel_headeredit, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_edit_panel_headeredit, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_edit_panel_headeredit, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_edit_panel_headeredit, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_edit_panel_header = lv_obj_create(ui_edit);
+    lv_obj_set_width(ui_edit_panel_header, lv_pct(100));
+    lv_obj_set_height(ui_edit_panel_header, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_align(ui_edit_panel_header, LV_ALIGN_CENTER);
+    lv_obj_remove_flag(ui_edit_panel_header, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_edit_panel_header, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_edit_panel_header, lv_color_hex(0x303030), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_opa(ui_edit_panel_header, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui_edit_panel_header, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui_edit_panel_header, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui_edit_panel_header, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui_edit_panel_header, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_edit_label_headerlabel2 = lv_label_create(ui_edit_panel_headeredit);
-    lv_obj_set_width(ui_edit_label_headerlabel2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_edit_label_headerlabel2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_edit_label_headerlabel2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_edit_label_headerlabel2, "text");
+    ui_edit_label_headerlabel = lv_label_create(ui_edit_panel_header);
+    lv_obj_set_width(ui_edit_label_headerlabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_edit_label_headerlabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_edit_label_headerlabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_edit_label_headerlabel, "text");
 
-    ui_edit_button_btnclose2 = lv_button_create(ui_edit_panel_headeredit);
-    lv_obj_set_width(ui_edit_button_btnclose2, LV_SIZE_CONTENT);   /// 100
-    lv_obj_set_height(ui_edit_button_btnclose2, LV_SIZE_CONTENT);    /// 50
-    lv_obj_set_align(ui_edit_button_btnclose2, LV_ALIGN_RIGHT_MID);
-    lv_obj_add_flag(ui_edit_button_btnclose2, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_remove_flag(ui_edit_button_btnclose2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_bg_color(ui_edit_button_btnclose2, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_edit_button_btnclose2, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_edit_button_btnclose = lv_button_create(ui_edit_panel_header);
+    lv_obj_set_width(ui_edit_button_btnclose, LV_SIZE_CONTENT);   /// 100
+    lv_obj_set_height(ui_edit_button_btnclose, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_align(ui_edit_button_btnclose, LV_ALIGN_RIGHT_MID);
+    lv_obj_add_flag(ui_edit_button_btnclose, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_edit_button_btnclose, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_object_set_themeable_style_property(ui_edit_button_btnclose, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_alarm);
+    ui_object_set_themeable_style_property(ui_edit_button_btnclose, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_alarm);
+    ui_object_set_themeable_style_property(ui_edit_button_btnclose, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_alarmpressed);
+    ui_object_set_themeable_style_property(ui_edit_button_btnclose, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_alarmpressed);
 
-    ui_edit_label_btncloselabel2 = lv_label_create(ui_edit_button_btnclose2);
-    lv_obj_set_width(ui_edit_label_btncloselabel2, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_edit_label_btncloselabel2, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_edit_label_btncloselabel2, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_edit_label_btncloselabel2, "X");
+    ui_edit_image_image2 = lv_image_create(ui_edit_button_btnclose);
+    lv_image_set_src(ui_edit_image_image2, &ui_img_cross_png);
+    lv_obj_set_width(ui_edit_image_image2, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_edit_image_image2, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_edit_image_image2, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_edit_image_image2, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_edit_image_image2, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_edit_container_bodyedit = lv_obj_create(ui_edit);
     lv_obj_remove_style_all(ui_edit_container_bodyedit);
@@ -72,7 +87,8 @@ void ui_edit_screen_init(void)
     lv_obj_set_height(ui_edit_keyboard_keyboardedit, lv_pct(100));
     lv_obj_set_align(ui_edit_keyboard_keyboardedit, LV_ALIGN_CENTER);
 
-    lv_obj_add_event_cb(ui_edit_button_btnclose2, ui_event_edit_button_btnclose2, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_edit_button_btnclose, ui_event_edit_button_btnclose, LV_EVENT_ALL, NULL);
     lv_keyboard_set_textarea(ui_edit_keyboard_keyboardedit, ui_edit_textarea_vareditinput);
+    lv_obj_add_event_cb(ui_edit_keyboard_keyboardedit, ui_event_edit_keyboard_keyboardedit, LV_EVENT_ALL, NULL);
 
 }

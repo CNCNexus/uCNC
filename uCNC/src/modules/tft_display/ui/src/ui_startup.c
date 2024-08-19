@@ -15,6 +15,7 @@ void ui_startup_screen_init(void)
     lv_obj_set_style_pad_right(ui_startup, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(ui_startup, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ui_startup, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_startup, &lv_font_montserrat_16, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_startup_label_versioninfo = lv_label_create(ui_startup);
     lv_obj_set_width(ui_startup_label_versioninfo, LV_SIZE_CONTENT);   /// 1
