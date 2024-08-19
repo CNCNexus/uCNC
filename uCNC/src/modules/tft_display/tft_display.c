@@ -26,6 +26,7 @@
 #include "lvgl/lvgl.h"
 #include "lvgl/src/drivers/display/st7796/lv_st7796.h"
 #include "ui/ui.h"
+#include "src/modules/touch_screen/touch_screen.h"
 
 #if (UCNC_MODULE_VERSION < 10990 || UCNC_MODULE_VERSION > 99999)
 #error "This module is not compatible with the current version of µCNC"
@@ -156,8 +157,12 @@ void tft_touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 	data->point.y = -1;
 	if (touch_screen_is_touching())
 	{
-		touch_screen_get_position(&data->point.x, &data->point.y, 127);
+		uint16_t x, y;
+		touch_screen_get_position(&x, &y, 127);
+		data->point.x = x;
+		data->point.y = y;
 		data->state = LV_INDEV_STATE_PRESSED;
+		system_menu_action()
 	}
 }
 
@@ -192,7 +197,7 @@ void system_menu_render_idle(void)
 	kinematics_apply_forward(steppos, axis);
 	kinematics_apply_reverse_transform(axis);
 	char buffer[32];
-	
+
 #if (AXIS_COUNT >= 6)
 	memset(buffer, 0, sizeof(buffer));
 	system_menu_flt_to_str(buffer, axis[5]);
@@ -226,6 +231,10 @@ void system_menu_render_idle(void)
 
 	// lv_obj_invalidate(ui_idle);
 	lv_disp_load_scr(ui_idle);
+}
+
+void system_menu_render_jog(void){
+	lv_disp_load_scr(ui_jog);
 }
 // void system_menu_render_alarm(void);
 // void system_menu_render_modal_popup(const char *__s);
@@ -266,7 +275,7 @@ bool tft_display_start(void *args)
 
 	lv_display_set_buffers(disp, buf, buf2, SCREENBUFFER_SIZE_PIXELS * sizeof(lv_color_t), LV_DISPLAY_RENDER_MODE_PARTIAL);
 
-	touch_screen_init(&touch_spi, TFT_H_RES, TFT_V_RES, (uint8_t)LV_DISPLAY_ROTATION_90, DOUT35, DIN35);
+	touch_screen_init(&touch_spi, TFT_H_RES, TFT_V_RES, 0, DOUT35, DIN35);
 	indev = lv_indev_create();
 	lv_indev_set_type(indev, LV_INDEV_TYPE_POINTER);
 	lv_indev_set_read_cb(indev, tft_touch_read);
@@ -277,32 +286,23 @@ bool tft_display_start(void *args)
 
 CREATE_EVENT_LISTENER_WITHLOCK(cnc_reset, tft_display_start, LISTENER_HWSPI2_LOCK);
 
+extern uint8_t g_touch_next_action;
 bool tft_display_update(void *args)
 {
 	static uint32_t next_update = 0;
 
 	if (next_update < mcu_millis())
 	{
-		// uint8_t action = SYSTEM_MENU_ACTION_NONE;
-		// switch (graphic_display_rotary_encoder_control())
-		// {
-		// case GRAPHIC_DISPLAY_SELECT:
-		// 	action = SYSTEM_MENU_ACTION_SELECT;
-		// 	// prevent double click
-		// 	graphic_display_rotary_encoder_pressed = 0;
-		// 	break;
-		// case GRAPHIC_DISPLAY_NEXT:
-		// 	action = SYSTEM_MENU_ACTION_NEXT;
-		// 	break;
-		// case GRAPHIC_DISPLAY_PREV:
-		// 	action = SYSTEM_MENU_ACTION_PREV;
-		// 	break;
+		// uint8_t action = g_touch_next_action;
+		// switch(action){
+		// 	case 128:
+		// 		system_menu_goto(SYSTEM_MENU_ID_JOG);
+		// 		break;
 		// }
-
-		// cnc_dotasks();
-		system_menu_action(SYSTEM_MENU_ACTION_NONE);
 		// // render menu
+		system_menu_action(SYSTEM_MENU_ACTION_NONE);
 		system_menu_render();
+		// g_touch_next_action = SYSTEM_MENU_ACTION_NONE;
 		// cnc_dotasks();
 		next_update = lv_timer_handler() + mcu_millis();
 	}
@@ -316,6 +316,7 @@ DECL_MODULE(tft_display)
 {
 	// STARTS SYSTEM MENU MODULE
 	system_menu_init();
+	system_menu_set_render_callback(SYSTEM_MENU_ID_JOG, system_menu_render_jog);
 	lv_init();
 	lv_tick_set_cb(mcu_millis);
 	lv_delay_set_cb(cnc_delay_ms);

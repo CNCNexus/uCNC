@@ -16,7 +16,7 @@ extern "C" {
 #elif __has_include("lvgl/lvgl.h")
 #include "lvgl/lvgl.h"
 #else
-#include "lvgl.h"
+#include "src/modules/tft_display/lvgl/lvgl.h"
 #endif
 #else
 #include "lvgl.h"
