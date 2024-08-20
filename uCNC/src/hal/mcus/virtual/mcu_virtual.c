@@ -28,7 +28,7 @@
 // #include <winsock2.h>
 // #include <ws2tcpip.h>
 // #pragma comment(lib, "ws2_32.lib") // Winsock Library
-// #include <windows.h>
+#include <windows.h>
 #include "win_port.h"
 
 /**
@@ -176,7 +176,7 @@ void mcu_uart2_flush(void)
         memset(tmp, 0, sizeof(tmp));
         uint8_t r = 0;
 
-        BUFFER_READ(uart2_tx, tmp, UART_TX_BUFFER_SIZE, r);
+        BUFFER_READ(uart2_tx, tmp, UART2_TX_BUFFER_SIZE, r);
         port_write(&uart2, tmp, r);
     }
 }
@@ -817,16 +817,16 @@ void ticksimul(void)
 pthread_t thread_io;
 void mcu_init(void)
 {
-    strcpy(uart.portname, UART_PORT_NAME);
-#ifdef IS_SLAVE_BOARD
-    uart.isclient = true;
-#endif
-    uart_init(&uart);
-    strcpy(uart2.portname, UART2_PORT_NAME);
-#ifdef IS_SLAVE_BOARD
-    uart2.isclient = true;
-#endif
-    namedpipe_init(&uart2);
+//     strcpy(uart.portname, UART_PORT_NAME);
+// #ifdef IS_SLAVE_BOARD
+//     uart.isclient = true;
+// #endif
+//     uart_init(&uart);
+//     strcpy(uart2.portname, UART2_PORT_NAME);
+// #ifdef IS_SLAVE_BOARD
+//     uart2.isclient = true;
+// #endif
+//     namedpipe_init(&uart2);
     console_init(&usb);
     startCycleCounter();
     virtualmap.special_outputs = 0;

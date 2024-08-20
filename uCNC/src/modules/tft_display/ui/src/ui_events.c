@@ -6,8 +6,6 @@
 #include "ui.h"
 #include "src/modules/system_menu.h"
 
-uint8_t g_touch_next_action;
-
 void touch_btn_hold_cb(lv_event_t *e)
 {
 	// Your code here
@@ -26,39 +24,38 @@ void touch_btn_home_cb(lv_event_t *e)
 void touch_btn_jog_cb(lv_event_t *e)
 {
 	// Your code here
-	// g_touch_next_action = 50;
 	system_menu_goto(SYSTEM_MENU_ID_JOG);
 }
 
 void touch_btn_settings_cb(lv_event_t *e)
 {
 	// Your code here
-	g_touch_next_action = SYSTEM_MENU_ACTION_SELECT;
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
 }
 
 void touch_btn_prev_cb(lv_event_t *e)
 {
 	// Your code here
-	g_touch_next_action = SYSTEM_MENU_ACTION_PREV;
+	system_menu_action(SYSTEM_MENU_ACTION_PREV);
 }
 
 void touch_btn_next_cb(lv_event_t *e)
 {
 	// Your code here
-	g_touch_next_action = SYSTEM_MENU_ACTION_NEXT;
+	system_menu_action(SYSTEM_MENU_ACTION_NEXT);
 }
 
 void touch_btn_enter_cb(lv_event_t *e)
 {
 	// Your code here
-	g_touch_next_action = SYSTEM_MENU_ACTION_SELECT;
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
 }
 
 void touch_btn_close_cb(lv_event_t *e)
 {
 	// Your code here
 	g_system_menu.current_index = -1;
-	g_touch_next_action = SYSTEM_MENU_ACTION_SELECT;
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
 }
 
 void touch_kb_ready_ev(lv_event_t *e)

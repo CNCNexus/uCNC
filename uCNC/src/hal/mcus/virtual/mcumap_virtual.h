@@ -68,7 +68,7 @@
 //#define UART_PORT_NAME "\\\\.\\COM12"
 //#endif
 
-#define MCU_HAS_UART2
+#define MCU_HAS_USB
 
 // #define EMULATE_74HC595
 

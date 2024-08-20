@@ -29,7 +29,7 @@ void ui_idle_screen_init(void)
     lv_obj_set_style_pad_column(ui_idle_container_header2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_idle_button_btnholdres1 = lv_button_create(ui_idle_container_header2);
-    lv_obj_set_height(ui_idle_button_btnholdres1, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_height(ui_idle_button_btnholdres1, 50);
     lv_obj_set_flex_grow(ui_idle_button_btnholdres1, 1);
     lv_obj_set_align(ui_idle_button_btnholdres1, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_idle_button_btnholdres1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
@@ -50,11 +50,11 @@ void ui_idle_screen_init(void)
 
     ui_idle_container_statusinfo = lv_obj_create(ui_idle_container_header2);
     lv_obj_remove_style_all(ui_idle_container_statusinfo);
-    lv_obj_set_height(ui_idle_container_statusinfo, LV_SIZE_CONTENT);    /// 100
+    lv_obj_set_height(ui_idle_container_statusinfo, 50);
     lv_obj_set_flex_grow(ui_idle_container_statusinfo, 2);
     lv_obj_set_align(ui_idle_container_statusinfo, LV_ALIGN_CENTER);
     lv_obj_set_flex_flow(ui_idle_container_statusinfo, LV_FLEX_FLOW_ROW);
-    lv_obj_set_flex_align(ui_idle_container_statusinfo, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
+    lv_obj_set_flex_align(ui_idle_container_statusinfo, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
     lv_obj_remove_flag(ui_idle_container_statusinfo, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_idle_container_statusinfo, 4, LV_PART_MAIN | LV_STATE_DEFAULT);
     ui_object_set_themeable_style_property(ui_idle_container_statusinfo, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
@@ -81,15 +81,19 @@ void ui_idle_screen_init(void)
     lv_label_set_text(ui_idle_label_statusvalue, "Alarm");
 
     ui_idle_button_btnholdres = lv_button_create(ui_idle_container_header2);
-    lv_obj_set_height(ui_idle_button_btnholdres, LV_SIZE_CONTENT);    /// 50
+    lv_obj_set_height(ui_idle_button_btnholdres, 50);
     lv_obj_set_flex_grow(ui_idle_button_btnholdres, 1);
     lv_obj_set_align(ui_idle_button_btnholdres, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_idle_button_btnholdres, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_idle_button_btnholdres, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     ui_object_set_themeable_style_property(ui_idle_button_btnholdres, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_hold);
+                                           _ui_theme_color_button);
     ui_object_set_themeable_style_property(ui_idle_button_btnholdres, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_hold);
+                                           _ui_theme_alpha_button);
+    ui_object_set_themeable_style_property(ui_idle_button_btnholdres, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_buttonpressed);
+    ui_object_set_themeable_style_property(ui_idle_button_btnholdres, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_buttonpressed);
 
     ui_idle_image_image7 = lv_image_create(ui_idle_button_btnholdres);
     lv_image_set_src(ui_idle_image_image7, &ui_img_pause2_png);
@@ -380,17 +384,26 @@ void ui_idle_screen_init(void)
 
     lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfox, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISLABEL), "X:");
 
+    lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfox, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE),
+                      "9999.999");
+
     ui_idle_axisinfo_axisinfoy = ui_container_axisinfo_create(ui_idle_container_container8);
     lv_obj_set_x(ui_idle_axisinfo_axisinfoy, 0);
     lv_obj_set_y(ui_idle_axisinfo_axisinfoy, 0);
 
     lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoy, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISLABEL), "Y:");
 
+    lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoy, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE),
+                      "9999.999");
+
     ui_idle_axisinfo_axisinfoz = ui_container_axisinfo_create(ui_idle_container_container8);
     lv_obj_set_x(ui_idle_axisinfo_axisinfoz, 0);
     lv_obj_set_y(ui_idle_axisinfo_axisinfoz, 0);
 
     lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoz, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISLABEL), "Z:");
+
+    lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoz, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE),
+                      "9999.999");
 
     ui_idle_container_container9 = lv_obj_create(ui_idle_container_body2);
     lv_obj_remove_style_all(ui_idle_container_container9);

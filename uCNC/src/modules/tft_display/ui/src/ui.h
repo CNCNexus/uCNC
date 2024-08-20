@@ -106,8 +106,8 @@ extern lv_obj_t * ui_navigate_button_btnclose;
 extern lv_obj_t * ui_navigate_image_image16;
 extern lv_obj_t * ui_navigate_container_body;
 extern lv_obj_t * ui_navigate_container_menuitem0;
-extern lv_obj_t * ui_navigate_label_menuitemlabel;
-extern lv_obj_t * ui_navigate_label_menuitemvalue;
+extern lv_obj_t * ui_navigate_label_menuitemlabel0;
+extern lv_obj_t * ui_navigate_label_menuitemvalue0;
 extern lv_obj_t * ui_navigate_container_menuitem1;
 extern lv_obj_t * ui_navigate_label_menuitemlabel1;
 extern lv_obj_t * ui_navigate_label_menuitemvalue1;
@@ -123,16 +123,6 @@ extern lv_obj_t * ui_navigate_label_menuitemvalue4;
 extern lv_obj_t * ui_navigate_container_menuitem5;
 extern lv_obj_t * ui_navigate_label_menuitemlabel5;
 extern lv_obj_t * ui_navigate_label_menuitemvalue5;
-extern lv_obj_t * ui_navigate_container_menuitem6;
-extern lv_obj_t * ui_navigate_label_menuitemlabel6;
-extern lv_obj_t * ui_navigate_label_menuitemvalue6;
-extern lv_obj_t * ui_navigate_container_menuitem7;
-extern lv_obj_t * ui_navigate_label_menuitemlabel7;
-extern lv_obj_t * ui_navigate_label_menuitemvalue7;
-extern lv_obj_t * ui_navigate_container_menuitem8;
-extern lv_obj_t * ui_navigate_label_menuitemlabel8;
-extern lv_obj_t * ui_navigate_label_menuitemvalue8;
-extern lv_obj_t * ui_navigate_container_footer;
 extern lv_obj_t * ui_navigate_panel_footernav;
 void ui_event_navigate_button_btnprev(lv_event_t * e);
 extern lv_obj_t * ui_navigate_button_btnprev;
@@ -188,7 +178,7 @@ extern lv_obj_t * ui_jog_image_image5;
 extern lv_obj_t * ui_startevents____initial_actions0;
 
 
-LV_IMG_DECLARE(ui_img_ucnc_logo_png);    // assets/uCNC_logo.png
+LV_IMG_DECLARE(ui_img_ucnc_lowres_png);    // assets/uCNC_lowres.png
 LV_IMG_DECLARE(ui_img_loop2_png);    // assets/loop2.png
 LV_IMG_DECLARE(ui_img_pause2_png);    // assets/pause2.png
 LV_IMG_DECLARE(ui_img_play3_png);    // assets/play3.png

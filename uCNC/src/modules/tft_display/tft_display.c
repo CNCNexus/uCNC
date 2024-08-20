@@ -20,9 +20,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "../../cnc.h"
-#include "../system_menu.h"
-#include "../softspi.h"
+#include "src/cnc.h"
+#include "src/modules/system_menu.h"
+#include "src/modules/softspi.h"
 #include "lvgl/lvgl.h"
 #include "lvgl/src/drivers/display/st7796/lv_st7796.h"
 #include "ui/ui.h"
@@ -162,82 +162,9 @@ void tft_touch_read(lv_indev_t *indev, lv_indev_data_t *data)
 		data->point.x = x;
 		data->point.y = y;
 		data->state = LV_INDEV_STATE_PRESSED;
-		system_menu_action()
+		system_menu_action(255); // uncatched code just to prevent going idle
 	}
 }
-
-/**
- *
- * Sytem menu implementations
- *
- */
-
-void system_menu_render_header(const char *__s)
-{
-	// udpate header lables
-	lv_label_set_text(ui_navigate_label_headerlabel, __s);
-	lv_label_set_text(ui_edit_label_headerlabel, __s);
-}
-// bool system_menu_render_menu_item_filter(uint8_t item_index);
-// void system_menu_render_menu_item(uint8_t render_flags, const system_menu_item_t *item);
-// void system_menu_render_nav_back(bool is_hover);
-// void system_menu_render_footer(void);
-void system_menu_render_startup(void)
-{
-	lv_label_set_text(ui_startup_label_versioninfo, "uCNC v" CNC_VERSION);
-	lv_disp_load_scr(ui_startup);
-}
-
-void system_menu_render_idle(void)
-{
-	//  starts from the bottom up
-	float axis[MAX(AXIS_COUNT, 3)];
-	int32_t steppos[STEPPER_COUNT];
-	itp_get_rt_position(steppos);
-	kinematics_apply_forward(steppos, axis);
-	kinematics_apply_reverse_transform(axis);
-	char buffer[32];
-
-#if (AXIS_COUNT >= 6)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[5]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoc, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-#if (AXIS_COUNT >= 5)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[4]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfob, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-#if (AXIS_COUNT >= 4)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[3]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoa, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-#if (AXIS_COUNT >= 3)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[2]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoz, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-#if (AXIS_COUNT >= 2)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[1]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfoy, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-#if (AXIS_COUNT >= 1)
-	memset(buffer, 0, sizeof(buffer));
-	system_menu_flt_to_str(buffer, axis[0]);
-	lv_label_set_text(ui_comp_get_child(ui_idle_axisinfo_axisinfox, UI_COMP_CONTAINER_AXISINFO_LABEL_AXISVALUE), buffer);
-#endif
-
-	// lv_obj_invalidate(ui_idle);
-	lv_disp_load_scr(ui_idle);
-}
-
-void system_menu_render_jog(void){
-	lv_disp_load_scr(ui_jog);
-}
-// void system_menu_render_alarm(void);
-// void system_menu_render_modal_popup(const char *__s);
 
 /**
  *
@@ -286,20 +213,12 @@ bool tft_display_start(void *args)
 
 CREATE_EVENT_LISTENER_WITHLOCK(cnc_reset, tft_display_start, LISTENER_HWSPI2_LOCK);
 
-extern uint8_t g_touch_next_action;
 bool tft_display_update(void *args)
 {
 	static uint32_t next_update = 0;
 
 	if (next_update < mcu_millis())
 	{
-		// uint8_t action = g_touch_next_action;
-		// switch(action){
-		// 	case 128:
-		// 		system_menu_goto(SYSTEM_MENU_ID_JOG);
-		// 		break;
-		// }
-		// // render menu
 		system_menu_action(SYSTEM_MENU_ACTION_NONE);
 		system_menu_render();
 		// g_touch_next_action = SYSTEM_MENU_ACTION_NONE;
@@ -311,6 +230,9 @@ bool tft_display_update(void *args)
 }
 CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI2_LOCK);
 #endif
+
+// custom render jog screen
+extern void system_menu_render_jog(void);
 
 DECL_MODULE(tft_display)
 {

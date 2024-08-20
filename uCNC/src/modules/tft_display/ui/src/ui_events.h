@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+#include "src/modules/system_menu.h"
+
 void touch_btn_hold_cb(lv_event_t * e);
 void btn_idle_cb(lv_event_t * e);
 void touch_btn_home_cb(lv_event_t * e);
