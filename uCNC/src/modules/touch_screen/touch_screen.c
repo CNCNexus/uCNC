@@ -88,7 +88,6 @@ extern "C"
 	static uint16_t FORCEINLINE touch_screen_read_loop(uint8_t ctrl, uint8_t max_samples)
 	{
 		uint16_t prev = 0xffff, cur = 0xffff;
-		uint8_t i = 0;
 		softspi_xmit(touch_spi, ctrl);
 		do
 		{

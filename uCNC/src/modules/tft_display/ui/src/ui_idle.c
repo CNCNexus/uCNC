@@ -28,25 +28,37 @@ void ui_idle_screen_init(void)
     lv_obj_set_style_pad_row(ui_idle_container_header2, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_column(ui_idle_container_header2, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_idle_button_btnholdres1 = lv_button_create(ui_idle_container_header2);
-    lv_obj_set_height(ui_idle_button_btnholdres1, 50);
-    lv_obj_set_flex_grow(ui_idle_button_btnholdres1, 1);
-    lv_obj_set_align(ui_idle_button_btnholdres1, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_idle_button_btnholdres1, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_remove_flag(ui_idle_button_btnholdres1, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    ui_object_set_themeable_style_property(ui_idle_button_btnholdres1, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-                                           _ui_theme_color_alarm);
-    ui_object_set_themeable_style_property(ui_idle_button_btnholdres1, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
-                                           _ui_theme_alpha_alarm);
-    lv_obj_set_style_bg_image_src(ui_idle_button_btnholdres1, &ui_img_loop2_png, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ui_idle_button_btnunlock = lv_button_create(ui_idle_container_header2);
+    lv_obj_set_height(ui_idle_button_btnunlock, 50);
+    lv_obj_set_flex_grow(ui_idle_button_btnunlock, 1);
+    lv_obj_set_align(ui_idle_button_btnunlock, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_idle_button_btnunlock, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_remove_flag(ui_idle_button_btnunlock, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    ui_object_set_themeable_style_property(ui_idle_button_btnunlock, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_button);
+    ui_object_set_themeable_style_property(ui_idle_button_btnunlock, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_button);
+    ui_object_set_themeable_style_property(ui_idle_button_btnunlock, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_COLOR,
+                                           _ui_theme_color_buttonpressed);
+    ui_object_set_themeable_style_property(ui_idle_button_btnunlock, LV_PART_MAIN | LV_STATE_PRESSED, LV_STYLE_BG_OPA,
+                                           _ui_theme_alpha_buttonpressed);
 
-    ui_idle_image_image8 = lv_image_create(ui_idle_button_btnholdres1);
-    lv_image_set_src(ui_idle_image_image8, &ui_img_loop2_png);
+    ui_idle_image_image8 = lv_image_create(ui_idle_button_btnunlock);
+    lv_image_set_src(ui_idle_image_image8, &ui_img_lock_png);
     lv_obj_set_width(ui_idle_image_image8, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_height(ui_idle_image_image8, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_align(ui_idle_image_image8, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_idle_image_image8, LV_OBJ_FLAG_CLICKABLE);     /// Flags
     lv_obj_remove_flag(ui_idle_image_image8, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+
+    ui_idle_image_image17 = lv_image_create(ui_idle_button_btnunlock);
+    lv_image_set_src(ui_idle_image_image17, &ui_img_unlocked_png);
+    lv_obj_set_width(ui_idle_image_image17, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_idle_image_image17, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ui_idle_image_image17, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_idle_image_image17, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_remove_flag(ui_idle_image_image17, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_image_set_scale(ui_idle_image_image17, 0);
 
     ui_idle_container_statusinfo = lv_obj_create(ui_idle_container_header2);
     lv_obj_remove_style_all(ui_idle_container_statusinfo);
@@ -489,12 +501,11 @@ void ui_idle_screen_init(void)
     lv_obj_set_align(ui_idle_label_btnenterlabel2, LV_ALIGN_CENTER);
     lv_label_set_text(ui_idle_label_btnenterlabel2, "Enter/Set");
 
-    lv_obj_add_event_cb(ui_idle_button_btnholdres1, ui_event_idle_button_btnholdres1, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_idle_button_btnunlock, ui_event_idle_button_btnunlock, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnholdres, ui_event_idle_button_btnholdres, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnhome, ui_event_idle_button_btnhome, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnjog, ui_event_idle_button_btnjog, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnsettings, ui_event_idle_button_btnsettings, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_idle_container_body2, ui_event_idle_container_body2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnprev2, ui_event_idle_button_btnprev2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnnext2, ui_event_idle_button_btnnext2, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_idle_button_btnenter2, ui_event_idle_button_btnenter2, LV_EVENT_ALL, NULL);

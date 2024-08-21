@@ -102,7 +102,7 @@ static FORCEINLINE void swap_colors(uint16_t *buff, size_t pixel_count)
 	while (pixel_count--)
 	{
 		uint16_t pixel = *buff;
-		*buff++ = ((pixel >> 7) | (pixel << (16 - 7)) & 0xFFFF);
+		*buff++ = (((pixel >> 7) | (pixel << (16 - 7))) & 0xFFFF);
 	}
 }
 
@@ -128,7 +128,7 @@ static void tft_send_color(lv_display_t *display, const uint8_t *cmd, size_t cmd
 /* for short data blocks we use polling transfer */
 // fix color swap
 #if LV_COLOR_16_SWAP
-	swap_colors(param, param_size / 2);
+	swap_colors((uint16_t *)param, param_size >> 1);
 #endif
 	softspi_bulk_xmit(&tft_spi, param, NULL, (uint16_t)param_size);
 	/* CS high */
@@ -231,11 +231,62 @@ bool tft_display_update(void *args)
 CREATE_EVENT_LISTENER_WITHLOCK(cnc_dotasks, tft_display_update, LISTENER_HWSPI2_LOCK);
 #endif
 
+/**
+ * Screen serial stream
+ */
+
+#ifdef DECL_SERIAL_STREAM
+DECL_BUFFER(uint8_t, tft_display_stream_buffer, 32);
+static uint8_t tft_display_getc(void)
+{
+	uint8_t c = 0;
+	BUFFER_DEQUEUE(tft_display_stream_buffer, &c);
+	return c;
+}
+
+uint8_t tft_display_available(void)
+{
+	return BUFFER_READ_AVAILABLE(tft_display_stream_buffer);
+}
+
+void tft_display_clear(void)
+{
+	BUFFER_CLEAR(tft_display_stream_buffer);
+}
+
+DECL_SERIAL_STREAM(tft_display_stream, tft_display_getc, tft_display_available, tft_display_clear, NULL, NULL);
+
+uint8_t system_menu_send_cmd(const char *__s)
+{
+	// if machine is running rejects the command
+	if (cnc_get_exec_state(EXEC_RUN | EXEC_JOG) == EXEC_RUN)
+	{
+		return STATUS_SYSTEM_GC_LOCK;
+	}
+
+	uint8_t len = strlen(__s);
+	uint8_t w;
+
+	if (BUFFER_WRITE_AVAILABLE(tft_display_stream_buffer) < len)
+	{
+		return STATUS_STREAM_FAILED;
+	}
+
+	BUFFER_WRITE(tft_display_stream_buffer, (void *)__s, len, w);
+
+	return STATUS_OK;
+}
+
+#endif
+
 // custom render jog screen
-extern void system_menu_render_jog(void);
+extern void system_menu_render_jog(uint8_t flags);
 
 DECL_MODULE(tft_display)
 {
+#ifdef DECL_SERIAL_STREAM
+	serial_stream_register(&tft_display_stream);
+#endif
 	// STARTS SYSTEM MENU MODULE
 	system_menu_init();
 	system_menu_set_render_callback(SYSTEM_MENU_ID_JOG, system_menu_render_jog);

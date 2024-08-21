@@ -10,10 +10,8 @@
 extern "C" {
 #endif
 
-#include "src/modules/system_menu.h"
-
+void touch_btn_unlock_cb(lv_event_t * e);
 void touch_btn_hold_cb(lv_event_t * e);
-void btn_idle_cb(lv_event_t * e);
 void touch_btn_home_cb(lv_event_t * e);
 void touch_btn_jog_cb(lv_event_t * e);
 void touch_btn_settings_cb(lv_event_t * e);
@@ -23,6 +21,7 @@ void touch_btn_enter_cb(lv_event_t * e);
 void touch_btn_close_cb(lv_event_t * e);
 void touch_kb_ready_ev(lv_event_t * e);
 void touch_btn_jogplus_cb(lv_event_t * e);
+void touch_btn_jogcancel_repeat_cb(lv_event_t * e);
 void touch_btn_jogcancel_cb(lv_event_t * e);
 void touch_btn_jogminus_cb(lv_event_t * e);
 

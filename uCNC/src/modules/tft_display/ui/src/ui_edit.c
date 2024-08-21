@@ -70,18 +70,22 @@ void ui_edit_screen_init(void)
     lv_obj_remove_flag(ui_edit_container_bodyedit, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 
     ui_edit_textarea_vareditinput = lv_textarea_create(ui_edit_container_bodyedit);
-    lv_obj_set_height(ui_edit_textarea_vareditinput, 70);
     lv_obj_set_width(ui_edit_textarea_vareditinput, lv_pct(75));
+    lv_obj_set_height(ui_edit_textarea_vareditinput, LV_SIZE_CONTENT);    /// 70
     lv_obj_set_align(ui_edit_textarea_vareditinput, LV_ALIGN_CENTER);
-    lv_textarea_set_text(ui_edit_textarea_vareditinput, "value");
-    lv_textarea_set_placeholder_text(ui_edit_textarea_vareditinput, "Placeholder...");
+    if("-+0123456789." == "") lv_textarea_set_accepted_chars(ui_edit_textarea_vareditinput, NULL);
+    else lv_textarea_set_accepted_chars(ui_edit_textarea_vareditinput, "-+0123456789.");
+    lv_textarea_set_max_length(ui_edit_textarea_vareditinput, 20);
+    lv_textarea_set_text(ui_edit_textarea_vareditinput, "0");
+    lv_textarea_set_placeholder_text(ui_edit_textarea_vareditinput, "Value...");
+    lv_textarea_set_one_line(ui_edit_textarea_vareditinput, true);
 
 
 
     ui_edit_container_footeredit = lv_obj_create(ui_edit);
     lv_obj_remove_style_all(ui_edit_container_footeredit);
     lv_obj_set_width(ui_edit_container_footeredit, lv_pct(100));
-    lv_obj_set_height(ui_edit_container_footeredit, lv_pct(50));
+    lv_obj_set_flex_grow(ui_edit_container_footeredit, 1);
     lv_obj_set_align(ui_edit_container_footeredit, LV_ALIGN_CENTER);
     lv_obj_remove_flag(ui_edit_container_footeredit, LV_OBJ_FLAG_CLICKABLE | LV_OBJ_FLAG_SCROLLABLE);      /// Flags
 

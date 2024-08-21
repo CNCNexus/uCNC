@@ -39,7 +39,6 @@ void ui_navigate_screen_init(void)
     lv_obj_set_height(ui_navigate_button_btnclose, 50);
     lv_obj_set_width(ui_navigate_button_btnclose, LV_SIZE_CONTENT);   /// 100
     lv_obj_set_align(ui_navigate_button_btnclose, LV_ALIGN_RIGHT_MID);
-    lv_obj_add_state(ui_navigate_button_btnclose, LV_STATE_FOCUSED);       /// States
     lv_obj_add_flag(ui_navigate_button_btnclose, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_remove_flag(ui_navigate_button_btnclose, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     ui_object_set_themeable_style_property(ui_navigate_button_btnclose, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,

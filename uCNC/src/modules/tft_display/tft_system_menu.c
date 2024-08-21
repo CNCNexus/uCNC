@@ -158,7 +158,7 @@ static void render_status(char *buff)
 		default:
 			rom_strcpy(buff, MSG_STATUS_IDLE);
 			ui_object_set_themeable_style_property(ui_idle_container_statusinfo, LV_PART_MAIN | LV_STATE_DEFAULT, LV_STYLE_BG_COLOR,
-																						 _ui_theme_color_checked);
+																						 _ui_theme_color_container);
 			break;
 		}
 	}
@@ -225,7 +225,7 @@ void system_menu_item_render_label(uint8_t render_flags, const char *label)
 	int8_t line = item_line;
 	item_line = line + 1;
 
-	char str[64];
+	char str[SYSTEM_MENU_MAX_STR_LEN];
 	memset(str, 0, sizeof(str));
 	if (label)
 	{
@@ -263,7 +263,7 @@ void system_menu_item_render_label(uint8_t render_flags, const char *label)
 
 void system_menu_item_render_arg(uint8_t render_flags, const char *value)
 {
-	char str[64];
+	char str[SYSTEM_MENU_MAX_STR_LEN];
 	memset(str, 0, sizeof(str));
 	if (value)
 	{
@@ -293,6 +293,9 @@ void system_menu_item_render_arg(uint8_t render_flags, const char *value)
 		lv_label_set_text(ui_navigate_label_menuitemvalue5, str);
 		break;
 	}
+
+	// also set text of edit box
+	lv_textarea_set_text(ui_edit_textarea_vareditinput, str);
 }
 
 void system_menu_render_nav_back(bool is_hover)
@@ -313,7 +316,7 @@ void system_menu_render_nav_back(bool is_hover)
 
 void system_menu_render_footer(void)
 {
-	if (g_system_menu.flags & SYSTEM_MENU_MODE_EDIT)
+	if (CHECKFLAG(g_system_menu.flags, (SYSTEM_MENU_MODE_EDIT | SYSTEM_MENU_MODE_SIMPLE_EDIT)))
 	{
 		lv_disp_load_scr(ui_edit);
 	}
@@ -345,7 +348,7 @@ void system_menu_render_idle(void)
 	itp_get_rt_position(steppos);
 	kinematics_apply_forward(steppos, axis);
 	kinematics_apply_reverse_transform(axis);
-	char buffer[64];
+	char buffer[SYSTEM_MENU_MAX_STR_LEN];
 
 	memset(buffer, 0, sizeof(buffer));
 	render_status(buffer);
@@ -443,11 +446,35 @@ void system_menu_render_idle(void)
 
 	lv_label_set_text(ui_idle_label_modalmodesvalue, buffer);
 
+	// unlock button image
+	if (cnc_get_exec_state(EXEC_UNHOMED))
+	{
+		lv_image_set_scale(ui_idle_image_image8, 256);
+		lv_image_set_scale(ui_idle_image_image17, 0);
+	}
+	else
+	{
+		lv_image_set_scale(ui_idle_image_image8, 0);
+		lv_image_set_scale(ui_idle_image_image17, 256);
+	}
+
+	// hold resume button image
+	if (cnc_get_exec_state(EXEC_HOLD))
+	{
+		lv_image_set_scale(ui_idle_image_image12, 256);
+		lv_image_set_scale(ui_idle_image_image7, 0);
+	}
+	else
+	{
+		lv_image_set_scale(ui_idle_image_image12, 0);
+		lv_image_set_scale(ui_idle_image_image7, 256);
+	}
+
 	// lv_obj_invalidate(ui_idle);
 	lv_disp_load_scr(ui_idle);
 }
 
-void system_menu_render_jog(void)
+void system_menu_render_jog(uint8_t flags)
 {
 	lv_disp_load_scr(ui_jog);
 }
@@ -455,3 +482,254 @@ void system_menu_render_jog(void)
 // void system_menu_render_alarm(void);
 
 // void system_menu_render_modal_popup(const char *__s);
+
+/**
+ * LVGL button events
+ * */
+
+#include "ui/ui.h"
+
+static uint8_t str_to_float(char *str, float *value)
+{
+	uint32_t intval = 0;
+	uint8_t fpcount = 0;
+	float rhs = 0;
+	uint8_t result = NUMBER_UNDEF;
+
+	uint8_t c = *str++;
+
+	if (c == '-' || c == '+')
+	{
+		if (c == '-')
+		{
+			result |= NUMBER_ISNEGATIVE;
+		}
+		c = *str++;
+	}
+
+	for (;;)
+	{
+		uint8_t digit = (uint8_t)c - 48;
+		if (digit <= 9)
+		{
+			intval = fast_int_mul10(intval) + digit;
+			if (fpcount)
+			{
+				fpcount++;
+			}
+
+			result |= NUMBER_OK;
+		}
+		else if (c == '.' && !fpcount)
+		{
+			fpcount++;
+			result |= NUMBER_ISFLOAT;
+		}
+		else
+		{
+			if (!(result & NUMBER_OK))
+			{
+				return NUMBER_UNDEF;
+			}
+			break;
+		}
+
+		c = *str++;
+	}
+
+	rhs = (float)intval;
+	if (fpcount)
+	{
+		fpcount--;
+	}
+
+	do
+	{
+		if (fpcount >= 2)
+		{
+			rhs *= 0.01f;
+			fpcount -= 2;
+		}
+
+		if (fpcount >= 1)
+		{
+			rhs *= 0.1f;
+			fpcount -= 1;
+		}
+
+	} while (fpcount != 0);
+
+	*value = (result & NUMBER_ISNEGATIVE) ? -rhs : rhs;
+
+	return result;
+}
+
+static void send_jog_cmd(bool reverse)
+{
+	if (serial_freebytes() > SYSTEM_MENU_MAX_STR_LEN)
+	{
+		char buffer[SYSTEM_MENU_MAX_STR_LEN];
+		memset(buffer, 0, SYSTEM_MENU_MAX_STR_LEN);
+		rom_strcpy((char *)buffer, __romstr__("$J=G91"));
+
+		char str[SYSTEM_MENU_MAX_STR_LEN];
+		memset(str, 0, SYSTEM_MENU_MAX_STR_LEN);
+		lv_roller_get_selected_str(ui_jog_roller_jogaxis, str, SYSTEM_MENU_MAX_STR_LEN);
+		strcat(buffer, str);
+		memset(str, 0, SYSTEM_MENU_MAX_STR_LEN);
+		lv_roller_get_selected_str(ui_jog_roller_jogdist, str, SYSTEM_MENU_MAX_STR_LEN);
+		if (reverse)
+		{
+			strcat(buffer, "-");
+		}
+		strcat(buffer, str);
+		strcat(buffer, "F");
+		memset(str, 0, SYSTEM_MENU_MAX_STR_LEN);
+		lv_roller_get_selected_str(ui_jog_roller_jogfeed, str, SYSTEM_MENU_MAX_STR_LEN);
+		strcat(buffer, str);
+		strcat(buffer, "\n");
+
+		if (system_menu_send_cmd(buffer) != STATUS_OK)
+		{
+			rom_strcpy((char *)buffer, __romstr__(STR_CMD_NOTSENT));
+			system_menu_show_modal_popup(SYSTEM_MENU_MODAL_POPUP_MS, buffer);
+		}
+	}
+}
+
+void touch_btn_jog_cb(lv_event_t *e)
+{
+	// Your code here
+	system_menu_goto(SYSTEM_MENU_ID_JOG);
+}
+
+void touch_btn_settings_cb(lv_event_t *e)
+{
+	// Your code here
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
+}
+
+void touch_btn_prev_cb(lv_event_t *e)
+{
+	// Your code here
+	system_menu_action(SYSTEM_MENU_ACTION_PREV);
+}
+
+void touch_btn_next_cb(lv_event_t *e)
+{
+	// Your code here
+	system_menu_action(SYSTEM_MENU_ACTION_NEXT);
+}
+
+void touch_btn_enter_cb(lv_event_t *e)
+{
+	// Your code here
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
+}
+
+void touch_btn_close_cb(lv_event_t *e)
+{
+	// Your code here
+	g_system_menu.current_index = -1;
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
+}
+
+void touch_btn_unlock_cb(lv_event_t *e)
+{
+	cnc_unlock(false);
+}
+
+void touch_btn_hold_cb(lv_event_t *e)
+{
+	// Your code here
+	cnc_call_rt_command(CMD_CODE_FEED_HOLD);
+}
+
+void touch_btn_home_cb(lv_event_t *e)
+{
+	// Your code here
+	if (serial_freebytes() > SYSTEM_MENU_MAX_STR_LEN)
+	{
+		char buffer[SYSTEM_MENU_MAX_STR_LEN];
+		memset(buffer, 0, SYSTEM_MENU_MAX_STR_LEN);
+		rom_strcpy((char *)buffer, __romstr__("$H\r"));
+
+		if (system_menu_send_cmd(buffer) != STATUS_OK)
+		{
+			rom_strcpy((char *)buffer, __romstr__(STR_CMD_NOTSENT));
+			system_menu_show_modal_popup(SYSTEM_MENU_MODAL_POPUP_MS, buffer);
+		}
+	}
+}
+
+void touch_kb_ready_ev(lv_event_t *e)
+{
+	// Your code here
+	const char *value = lv_textarea_get_text(ui_edit_textarea_vareditinput);
+	const system_menu_item_t *item = system_menu_get_current_item();
+	uint8_t vartype = (uint8_t)VARG_CONST(item->action_arg);
+	float fvalue = 0;
+	if (str_to_float(value, &fvalue) == NUMBER_UNDEF)
+	{
+		fvalue = 0;
+	}
+	switch (vartype)
+	{
+	case VAR_TYPE_BOOLEAN:
+		(*(bool *)item->argptr) = (fvalue != 0);
+		break;
+	case VAR_TYPE_INT8:
+	case VAR_TYPE_UINT8:
+		(*(uint8_t *)item->argptr) = CLAMP(0, (uint8_t)fvalue, 0xFF);
+		break;
+	case VAR_TYPE_INT16:
+	case VAR_TYPE_UINT16:
+		(*(uint16_t *)item->argptr) = CLAMP(0, (uint16_t)fvalue, 0xFFFF);
+		break;
+	case VAR_TYPE_INT32:
+	case VAR_TYPE_UINT32:
+		(*(uint32_t *)item->argptr) = CLAMP(0, (uint32_t)fvalue, 0xFFFFFFFF);
+		break;
+	case VAR_TYPE_FLOAT:
+		(*(float *)item->argptr) = CLAMP(__FLT_MIN__, (float)fvalue, __FLT_MAX__);
+		break;
+	}
+
+	// do a navback
+	g_system_menu.current_index = -1;
+	system_menu_action(SYSTEM_MENU_ACTION_SELECT);
+}
+
+static uint8_t is_jog_longpress;
+void touch_btn_jogplus_cb(lv_event_t *e)
+{
+	// Your code here
+	uint8_t i = is_jog_longpress;
+	is_jog_longpress = MAX(i, i + 1);
+	send_jog_cmd(false);
+}
+
+void touch_btn_jogcancel_repeat_cb(lv_event_t *e)
+{
+	// Your code here
+	if (is_jog_longpress > 1)
+	{
+		cnc_call_rt_command(CMD_CODE_JOG_CANCEL);
+	}
+	is_jog_longpress = 0;
+}
+
+void touch_btn_jogcancel_cb(lv_event_t *e)
+{
+	// Your code here
+	cnc_call_rt_command(CMD_CODE_JOG_CANCEL);
+	is_jog_longpress = 0;
+}
+
+void touch_btn_jogminus_cb(lv_event_t *e)
+{
+	// Your code here
+	uint8_t i = is_jog_longpress;
+	is_jog_longpress = MAX(i, i + 1);
+	send_jog_cmd(false);
+}

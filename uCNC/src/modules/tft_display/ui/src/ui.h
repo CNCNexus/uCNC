@@ -38,9 +38,10 @@ extern lv_obj_t * ui_startup_image_image1;
 void ui_idle_screen_init(void);
 extern lv_obj_t * ui_idle;
 extern lv_obj_t * ui_idle_container_header2;
-void ui_event_idle_button_btnholdres1(lv_event_t * e);
-extern lv_obj_t * ui_idle_button_btnholdres1;
+void ui_event_idle_button_btnunlock(lv_event_t * e);
+extern lv_obj_t * ui_idle_button_btnunlock;
 extern lv_obj_t * ui_idle_image_image8;
+extern lv_obj_t * ui_idle_image_image17;
 extern lv_obj_t * ui_idle_container_statusinfo;
 extern lv_obj_t * ui_idle_label_statuslabel;
 extern lv_obj_t * ui_idle_label_statusvalue;
@@ -48,7 +49,6 @@ void ui_event_idle_button_btnholdres(lv_event_t * e);
 extern lv_obj_t * ui_idle_button_btnholdres;
 extern lv_obj_t * ui_idle_image_image7;
 extern lv_obj_t * ui_idle_image_image12;
-void ui_event_idle_container_body2(lv_event_t * e);
 extern lv_obj_t * ui_idle_container_body2;
 extern lv_obj_t * ui_idle_container_container7;
 void ui_event_idle_button_btnhome(lv_event_t * e);
@@ -179,7 +179,8 @@ extern lv_obj_t * ui_startevents____initial_actions0;
 
 
 LV_IMG_DECLARE(ui_img_ucnc_lowres_png);    // assets/uCNC_lowres.png
-LV_IMG_DECLARE(ui_img_loop2_png);    // assets/loop2.png
+LV_IMG_DECLARE(ui_img_lock_png);    // assets/lock.png
+LV_IMG_DECLARE(ui_img_unlocked_png);    // assets/unlocked.png
 LV_IMG_DECLARE(ui_img_pause2_png);    // assets/pause2.png
 LV_IMG_DECLARE(ui_img_play3_png);    // assets/play3.png
 LV_IMG_DECLARE(ui_img_home3_png);    // assets/home3.png
@@ -190,6 +191,7 @@ LV_IMG_DECLARE(ui_img_221678416);    // assets/arrow-up.png
 LV_IMG_DECLARE(ui_img_1491226653);    // assets/arrow-down.png
 LV_IMG_DECLARE(ui_img_checkmark_png);    // assets/checkmark.png
 LV_IMG_DECLARE(ui_img_blocked_png);    // assets/blocked.png
+LV_IMG_DECLARE(ui_img_loop2_png);    // assets/loop2.png
 
 
 
